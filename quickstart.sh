@@ -795,7 +795,19 @@ if [ -n "$HIVE_CREDENTIAL_KEY" ]; then
     echo ""
 fi
 
-echo -e "${BOLD}Build a New Agent:${NC}"
+echo -e "${BOLD}🎉 Setup Complete! What's Next?${NC}"
+echo ""
+echo -e "  ${GREEN}→ Run an example agent:${NC}"
+echo -e "     ${CYAN}uv run python -m examples.templates.tech_news_reporter.agent${NC}"
+echo ""
+echo -e "  ${GREEN}→ Launch the Interactive Dashboard:${NC}"
+echo -e "     ${CYAN}hive tui${NC}"
+echo ""
+echo -e "  ${GREEN}→ Read the getting started guide:${NC}"
+echo -e "     ${CYAN}cat GETTING_STARTED.md${NC}"
+echo -e "     ${DIM}(step-by-step guide for first-time users)${NC}"
+echo ""
+echo -e "${BOLD}For Claude Code Users:${NC}"
 echo ""
 echo -e "  1. Open Claude Code in this directory:"
 echo -e "     ${CYAN}claude${NC}"
@@ -806,12 +818,6 @@ echo ""
 echo -e "  3. Test an existing agent:"
 echo -e "     ${CYAN}/hive-test${NC}"
 echo ""
-echo -e "${BOLD}Run an Agent:${NC}"
-echo ""
-echo -e "  Launch the interactive dashboard to browse and run agents:"
-echo -e "  You can start a example agent or an agent built by yourself:"
-echo -e "     ${CYAN}hive tui${NC}"
-echo ""
 # Show shell sourcing reminder if we added environment variables
 if [ -n "$SELECTED_PROVIDER_ID" ] || [ -n "$HIVE_CREDENTIAL_KEY" ]; then
     echo -e "${BOLD}Note:${NC} To use the new environment variables in this shell, run:"
@@ -819,5 +825,9 @@ if [ -n "$SELECTED_PROVIDER_ID" ] || [ -n "$HIVE_CREDENTIAL_KEY" ]; then
     echo ""
 fi
 
+echo -e "${BOLD}More Resources:${NC}"
+echo -e "  • ${CYAN}examples/${NC} - Example agents and templates"
+echo -e "  • ${CYAN}docs/developer-guide.md${NC} - Complete development guide"
+echo ""
 echo -e "${DIM}Run ./quickstart.sh again to reconfigure.${NC}"
 echo ""
