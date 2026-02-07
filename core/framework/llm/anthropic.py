@@ -26,9 +26,58 @@ def _get_api_key_from_credential_store() -> str | None:
     return os.environ.get("ANTHROPIC_API_KEY")
 
 
+def _validate_api_key(api_key: str) -> str:
+    """Validate and normalize an Anthropic API key.
+
+    Args:
+        api_key: Raw API key string
+
+    Returns:
+        Normalized API key (trimmed)
+
+    Raises:
+        ValueError: If key is malformed with specific error message
+    """
+    # Check for empty or whitespace-only keys
+    if not api_key or not api_key.strip():
+        raise ValueError(
+            "Anthropic API key is empty or contains only whitespace. "
+            "Check your ANTHROPIC_API_KEY environment variable or "
+            "api_key parameter."
+        )
+
+    # Check for control characters BEFORE stripping (newlines, carriage returns, tabs)
+    if any(char in api_key for char in '\n\r\t\x0b\x0c'):
+        raise ValueError(
+            "Anthropic API key contains control characters (newline, tab, etc.). "
+            "This is likely a copy-paste error. Please check your key."
+        )
+
+    # Normalize: strip leading/trailing whitespace
+    normalized_key = api_key.strip()
+
+    # Check for quoted keys (common config error)
+    if (normalized_key.startswith('"') and normalized_key.endswith('"')) or \
+       (normalized_key.startswith("'") and normalized_key.endswith("'")):
+        raise ValueError(
+            "Anthropic API key appears to be quoted. "
+            "Remove the surrounding quotes from your configuration."
+        )
+
+    # Check for basic Anthropic key format (starts with sk-ant-)
+    if not normalized_key.startswith('sk-ant-'):
+        raise ValueError(
+            "Anthropic API key has unexpected format "
+            f"(expected to start with 'sk-ant-'). "
+            f"Received key starting with: '{normalized_key[:10]}...'"
+        )
+
+    return normalized_key
+
+
 class AnthropicProvider(LLMProvider):
     """
-    Anthropic Claude LLM provider.
+   Anthropic Claude LLM provider.
 
     This is a backward-compatible wrapper that internally uses LiteLLMProvider.
     Existing code using AnthropicProvider will continue to work unchanged,
@@ -49,11 +98,14 @@ class AnthropicProvider(LLMProvider):
             model: Model to use (default: claude-haiku-4-5-20251001)
         """
         # Delegate to LiteLLMProvider internally.
-        self.api_key = api_key or _get_api_key_from_credential_store()
-        if not self.api_key:
+        raw_api_key = api_key or _get_api_key_from_credential_store()
+        if not raw_api_key:
             raise ValueError(
                 "Anthropic API key required. Set ANTHROPIC_API_KEY env var or pass api_key."
             )
+
+        # Validate and normalize the API key
+        self.api_key = _validate_api_key(raw_api_key)
 
         self.model = model
 
@@ -61,6 +113,7 @@ class AnthropicProvider(LLMProvider):
             model=model,
             api_key=self.api_key,
         )
+
 
     def complete(
         self,
